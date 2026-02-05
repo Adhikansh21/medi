@@ -14,8 +14,9 @@ import {
   PhoneOff,
   User,
 } from "lucide-react";
- 
-const VideoCall = ({ sessionId, token }) => {
+import { toast } from "sonner";
+
+export default function VideoCall({ sessionId, token }) {
   const [isLoading, setIsLoading] = useState(true);
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -25,9 +26,9 @@ const VideoCall = ({ sessionId, token }) => {
   const sessionRef = useRef(null);
   const publisherRef = useRef(null);
 
-   const router = useRouter();
+  const router = useRouter();
 
-    const appId = process.env.NEXT_PUBLIC_VONAGE_APPLICATION_ID;
+  const appId = process.env.NEXT_PUBLIC_VONAGE_APPLICATION_ID;
 
   // Handle script load
   const handleScriptLoad = () => {
@@ -48,13 +49,17 @@ const VideoCall = ({ sessionId, token }) => {
       return;
     }
 
+    console.log({ appId, sessionId, token });
+
     try {
       // Initialize the session
       sessionRef.current = window.OT.initSession(appId, sessionId);
 
       // Subscribe to new streams
       sessionRef.current.on("streamCreated", (event) => {
-       sessionRef.current.subscribe(
+        console.log(event, "New stream created");
+
+        sessionRef.current.subscribe(
           event.stream,
           "subscriber",
           {
@@ -126,13 +131,14 @@ const VideoCall = ({ sessionId, token }) => {
     }
   };
 
-    // Toggle video
+  // Toggle video
   const toggleVideo = () => {
     if (publisherRef.current) {
       publisherRef.current.publishVideo(!isVideoEnabled);
       setIsVideoEnabled((prev) => !prev);
     }
   };
+
   // Toggle audio
   const toggleAudio = () => {
     if (publisherRef.current) {
@@ -157,7 +163,7 @@ const VideoCall = ({ sessionId, token }) => {
 
     router.push("/appointments");
   };
-    
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -170,7 +176,6 @@ const VideoCall = ({ sessionId, token }) => {
     };
   }, []);
 
-  // Error handling Missing required parameter
   if (!sessionId || !token || !appId) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
@@ -190,7 +195,6 @@ const VideoCall = ({ sessionId, token }) => {
     );
   }
 
-
   return (
     <>
       <Script
@@ -203,7 +207,7 @@ const VideoCall = ({ sessionId, token }) => {
       />
 
       <div className="container mx-auto px-4 py-8">
-          <div className="text-center mb-6">
+        <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-white mb-2">
             Video Consultation
           </h1>
@@ -215,6 +219,7 @@ const VideoCall = ({ sessionId, token }) => {
               : "Connection failed"}
           </p>
         </div>
+
         {isLoading && !scriptLoaded ? (
           <div className="flex flex-col items-center justify-center py-12">
             <Loader2 className="h-12 w-12 text-emerald-400 animate-spin mb-4" />
@@ -223,13 +228,15 @@ const VideoCall = ({ sessionId, token }) => {
             </p>
           </div>
         ) : (
-        <div className="space-y-6">
+          <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Publisher (Your video) */}
               <div className="border border-emerald-900/20 rounded-lg overflow-hidden">
-                  <div className="bg-emerald-900/10 px-3 py-2 text-emerald-400 text-sm font-medium">
+                <div className="bg-emerald-900/10 px-3 py-2 text-emerald-400 text-sm font-medium">
                   You
                 </div>
-                <div id="publisher"
+                <div
+                  id="publisher"
                   className="w-full h-[300px] md:h-[400px] bg-muted/30"
                 >
                   {!scriptLoaded && (
@@ -241,8 +248,9 @@ const VideoCall = ({ sessionId, token }) => {
                   )}
                 </div>
               </div>
-                        
-                <div className="border border-emerald-900/20 rounded-lg overflow-hidden">
+
+              {/* Subscriber (Other person's video) */}
+              <div className="border border-emerald-900/20 rounded-lg overflow-hidden">
                 <div className="bg-emerald-900/10 px-3 py-2 text-emerald-400 text-sm font-medium">
                   Other Participant
                 </div>
@@ -259,10 +267,10 @@ const VideoCall = ({ sessionId, token }) => {
                   )}
                 </div>
               </div>
-          </div>
+            </div>
 
-           {/* Video controls */} 
-           <div className="flex justify-center space-x-4">
+            {/* Video controls */}
+            <div className="flex justify-center space-x-4">
               <Button
                 variant="outline"
                 size="lg"
@@ -300,7 +308,7 @@ const VideoCall = ({ sessionId, token }) => {
                 <PhoneOff />
               </Button>
             </div>
-            
+
             <div className="text-center">
               <p className="text-muted-foreground text-sm">
                 {isVideoEnabled ? "Camera on" : "Camera off"} •
@@ -314,8 +322,6 @@ const VideoCall = ({ sessionId, token }) => {
           </div>
         )}
       </div>
-      </>
+    </>
   );
 }
-
-export default VideoCall ;

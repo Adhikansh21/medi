@@ -8,20 +8,25 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/actions/onboarding";
 
 const PatientAppointmentsPage = async () => {
-   const user = await getCurrentUser();
-     if (!user || user.role !== "PATIENT") {
+  const user = await getCurrentUser();
+
+  if (!user || user.role !== "PATIENT") {
     redirect("/onboarding");
   }
 
-    const { appointments, error } = await getPatientAppointments();
+  const { appointments, error } = await getPatientAppointments();
+
   return (
     <div className="container mx-auto px-4 py-8">
+
       <PageHeader
         icon={<Calendar />}
         title="My Appointments"
         backLink="/doctors"
         backLabel="Find Doctors"
       />
+
+     
 
       <Card className="border-emerald-900/20">
         <CardHeader>
@@ -30,6 +35,7 @@ const PatientAppointmentsPage = async () => {
             Your Scheduled Appointments
           </CardTitle>
         </CardHeader>
+
         <CardContent>
           {error ? (
             <div className="text-center py-8">
@@ -61,6 +67,6 @@ const PatientAppointmentsPage = async () => {
       </Card>
     </div>
   );
-}
+};
 
-export default  PatientAppointmentsPage;
+export default PatientAppointmentsPage;

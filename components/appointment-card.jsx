@@ -75,7 +75,7 @@ export function AppointmentCard({
       return "Invalid date";
     }
   };
-
+  // If the data can be easily avaible then they are not able to understand that 
   // Format time only
   const formatTime = (dateString) => {
     try {
